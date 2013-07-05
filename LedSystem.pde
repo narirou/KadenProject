@@ -8,8 +8,8 @@ class LedSystem {
 	float ledX;
 	float ledY;
 	float ledSize;
-	float ledBaseSize = 100;
-	int intensity = 2;
+	float ledBaseSize;
+	int intensity;
 
 	LedSystem() {
 		ledBaseSize = 100;

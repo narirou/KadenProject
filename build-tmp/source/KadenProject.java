@@ -19,9 +19,9 @@ public class KadenProject extends PApplet {
 
 /* ================================================
 
-	KADEN PROJECT :: SWITCH - LOGVE
+	LUGVE Processing Sample
 
-	2013-07-05 | (c) Tokyo Metroporitan University
+	2013-07-06 | KADEN PROJECT :: SWITCH
 
 	Credits:
 		- Particles
@@ -34,23 +34,23 @@ public class KadenProject extends PApplet {
 
 
 
-SimpleOpenNI context;
-
 // Hand Controll
+SimpleOpenNI context;
 float lastMoveTime;
-float updateTime;
+
 boolean moveFlag = true;
-boolean handsTrackFlag = false;
+boolean trackFlag = false;
 
 PVector handVec = new PVector();
 ArrayList handVecList = new ArrayList();
 int handVecListSize = 10;
+
 String lastGesture = "";
 
 int DOT_STEPS = 8;
 
-// Logve System
-LogveSystem logve;
+// Lugve System
+LugveSystem lugve;
 
 
 /* ========================
@@ -62,7 +62,7 @@ public void setup() {
 
 	size( 1024, 768, OPENGL );
 
-	logve = new LogveSystem();
+	lugve = new LugveSystem();
 
 	context = new SimpleOpenNI( this );
 
@@ -78,6 +78,8 @@ public void setup() {
 	context.addGesture( "RaiseHand" );
 	context.setSmoothingHands( 1.0f );
 
+	 context.alternativeViewPointDepthToImage();
+
 	hint( DISABLE_DEPTH_MASK );
 }
 
@@ -90,8 +92,8 @@ public void draw() {
 
 	background( 15 );
 
-	logve.update();
-	logve.display();
+	lugve.update();
+	lugve.display();
 
 	context.update();
 
@@ -125,7 +127,7 @@ public void draw() {
 		popStyle();
 
 		// draw the tracked hand
-		if( handsTrackFlag ) {
+		if( trackFlag ) {
 			pushStyle();
 				strokeWeight( 2 );
 				stroke( 251, 201, 85, 80 );
@@ -143,35 +145,6 @@ public void draw() {
 				point( handVec.x, handVec.y, handVec.z );
 			popStyle();
 		}
-
-		// Move Light
-		if( handsTrackFlag ) {
-		PVector curr = (PVector) handVecList.get( 0 );
-		PVector last = (PVector) handVecList.get( handVecList.size() - 2 );
-		float diffX = abs( curr.x - last.x );
-		float diffY = abs( curr.y - last.y );
-		float diffTime = abs( updateTime - lastMoveTime );
-
-		if( diffX < 1.0f && diffY < 1.0f && handsTrackFlag ) {
-
-			if( diffTime > 1.0f && moveFlag ) {
-
-				// float posX = curr.x + width/2;
-				// float posY =  height -  (curr.y + height/2 );
-				float posX = curr.x;
-				float posY =  curr.y;
-
-				println( "Move : " + posX + " / " + posY );
-
-				lastMoveTime = updateTime;
-				logve.setPos( posX , posY );
-			}
-			moveFlag = false;
-		}
-		else {
-			moveFlag = true;
-		}
-		}
 	popMatrix();
 }
 
@@ -184,7 +157,7 @@ public void mousePressed() {
 
 	switch( mouseButton ) {
 		case LEFT:
-			logve.setPos( mouseX, mouseY );
+			lugve.setPos( mouseX, mouseY );
 		break;
 	}
 }
@@ -199,18 +172,18 @@ public void keyPressed() {
 	if( key == CODED ) {
 		switch( keyCode ) {
 			case UP:
-				logve.setSizeUp();
+				lugve.setSizeUp();
 			break;
 			case DOWN:
-				logve.setSizeDown();
+				lugve.setSizeDown();
 			break;
 		}
 	}
 	else if( '0' < key && key < '9' ) {
-		logve.setSize( PApplet.parseInt( key - '0' ) );
+		lugve.setSize( PApplet.parseInt( key - '0' ) );
 	}
 	else if( key == ' ' ) {
-		logve.toggleSystem();
+		lugve.toggleSystem();
 	}
 }
 
@@ -224,7 +197,7 @@ public void onCreateHands( int handId, PVector pos, float time ) {
 
 	println( "onCreateHands - handId: " + handId + ", pos: " + pos + ", time:" + time );
 
-	handsTrackFlag = true;
+	trackFlag = true;
 	handVec = pos;
 
 	handVecList.clear();
@@ -233,7 +206,7 @@ public void onCreateHands( int handId, PVector pos, float time ) {
 
 public void onUpdateHands( int handId, PVector pos, float time ) {
 
-	// println("onUpdateHandsCb - handId: " + handId + ", pos: " + pos + ", time:" + time);
+	// println( "onUpdateHandsCb - handId: " + handId + ", pos: " + pos + ", time:" + time );
 
 	handVec = pos;
 
@@ -245,39 +218,35 @@ public void onUpdateHands( int handId, PVector pos, float time ) {
 	}
 
 	// Move Light
-	// PVector last = (PVector) handVecList.get( handVecList.size() - 2 );
-	// float diffX = abs( pos.x - last.x );
-	// float diffY = abs( pos.y - last.y );
-	// float diffTime = abs( time - lastMoveTime );
+	PVector last = (PVector) handVecList.get( handVecList.size() - 2 );
+	float diffX = abs( pos.x - last.x );
+	float diffY = abs( pos.y - last.y );
+	float diffTime = abs( time - lastMoveTime );
 
-	// if( diffX < 1.0 && diffY < 1.0 && handsTrackFlag ) {
+	if( diffX < 1.0f && diffY < 1.0f && trackFlag ) {
 
-	// 	if( diffTime > 1.0 && moveFlag ) {
+		if( diffTime > 1.0f && moveFlag ) {
 
-	// 		// float posX = pos.x + width/2;
-	// 		// float posY =  height -  (pos.y + height/2 );
-	// 		float posX = pos.x;
-	// 		float posY =  pos.y;
+			float posX = pos.x + width/2;
+			float posY =  height -  (pos.y + height/2 );
 
-	// 		println( "Move : " + posX + " / " + posY );
+			println( "move : [ " + posX + " , " + posY + " ]" );
 
-	// 		lastMoveTime = time;
-	// 		logve.setPos( posX , posY );
-	// 	}
-	// 	moveFlag = false;
-	// }
-	// else {
-	// 	moveFlag = true;
-	// }
-
-	updateTime = time;
+			lastMoveTime = time;
+			lugve.setPos( posX , posY );
+		}
+		moveFlag = false;
+	}
+	else {
+		moveFlag = true;
+	}
 }
 
 public void onDestroyHands( int handId,float time ) {
 
 	println( "onDestroyHandsCb - handId: " + handId + ", time:" + time );
 
-	handsTrackFlag = false;
+	trackFlag = false;
 	context.addGesture( lastGesture );
 }
 
@@ -289,7 +258,7 @@ public void onDestroyHands( int handId,float time ) {
  ======================== */
 public void onRecognizeGesture( String strGesture, PVector idPosition, PVector endPosition ) {
 
-	println("onRecognizeGesture - strGesture: " + strGesture + ", idPosition: " + idPosition + ", endPosition:" + endPosition);
+	println( "onRecognizeGesture - strGesture: " + strGesture + ", idPosition: " + idPosition + ", endPosition:" + endPosition );
 
 	lastGesture = strGesture;
 	context.removeGesture( strGesture );
@@ -310,8 +279,8 @@ class LedSystem {
 	float ledX;
 	float ledY;
 	float ledSize;
-	float ledBaseSize = 100;
-	int intensity = 2;
+	float ledBaseSize;
+	int intensity;
 
 	LedSystem() {
 		ledBaseSize = 100;
@@ -348,10 +317,10 @@ class LedSystem {
 
 /* ========================
 
-	Logve System
+	Lugve System
 
  ======================== */
-class LogveSystem {
+class LugveSystem {
 
 	ParticleSystem ps;
 	LedSystem ls;
@@ -386,12 +355,11 @@ class LogveSystem {
 	int DURATION_MOVE = 200;
 	int DURATION_RESIZE = 100;
 
-	LogveSystem() {
-		ps = new ParticleSystem( 70 );
-
-		ls = new LedSystem();
-
+	LugveSystem() {
 		system = LED_SYSTEM;
+
+		ps = new ParticleSystem( 70 );
+		ls = new LedSystem();
 
 		partSize = partSizes[ num ];
 		ledSize = ledSizes[ num ];
@@ -444,6 +412,19 @@ class LogveSystem {
 		}
 		else if( system == PARTICLE_SYSTEM ) {
 			system = LED_SYSTEM;
+		}
+	}
+
+	public int getSystem() {
+		return system;
+	}
+
+	public void setSystem( int inputSystem ) {
+		if( inputSystem == LED_SYSTEM ) {
+			system = LED_SYSTEM;
+		}
+		else if( inputSystem == PARTICLE_SYSTEM ) {
+			system = PARTICLE_SYSTEM;
 		}
 	}
 
@@ -500,6 +481,11 @@ class LogveSystem {
 		return sin( HALF_PI / duration * ( duration - count ) );
 	}
 };
+/* ========================
+
+	Particle
+
+ ======================== */
 class Particle {
 
 	PShape part;

@@ -1,3 +1,8 @@
+/* ========================
+
+	Particle
+
+ ======================== */
 class Particle {
 
 	PShape part;

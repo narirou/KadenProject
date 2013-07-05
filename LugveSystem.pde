@@ -3,7 +3,7 @@
 	Lugve System
 
  ======================== */
-class LogveSystem {
+class LugveSystem {
 
 	ParticleSystem ps;
 	LedSystem ls;
@@ -95,6 +95,19 @@ class LogveSystem {
 		}
 		else if( system == PARTICLE_SYSTEM ) {
 			system = LED_SYSTEM;
+		}
+	}
+
+	public int getSystem() {
+		return system;
+	}
+
+	public void setSystem( int inputSystem ) {
+		if( inputSystem == LED_SYSTEM ) {
+			system = LED_SYSTEM;
+		}
+		else if( inputSystem == PARTICLE_SYSTEM ) {
+			system = PARTICLE_SYSTEM;
 		}
 	}
 

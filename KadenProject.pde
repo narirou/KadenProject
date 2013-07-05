@@ -1,8 +1,8 @@
 /* ================================================
 
-	KADEN PROJECT :: SWITCH - LUGVE
+	LUGVE Processing Sample
 
-	2013-07-05 | (c) Tokyo Metroporitan University
+	2013-07-06 | KADEN PROJECT :: SWITCH
 
 	Credits:
 		- Particles
@@ -15,16 +15,17 @@
 import java.util.*;
 import SimpleOpenNI.*;
 
-SimpleOpenNI context;
-
 // Hand Controll
+SimpleOpenNI context;
 float lastMoveTime;
+
 boolean moveFlag = true;
-boolean handsTrackFlag = false;
+boolean trackFlag = false;
 
 PVector handVec = new PVector();
 ArrayList handVecList = new ArrayList();
 int handVecListSize = 10;
+
 String lastGesture = "";
 
 int DOT_STEPS = 8;
@@ -42,7 +43,7 @@ void setup() {
 
 	size( 1024, 768, OPENGL );
 
-	lugve = new LogveSystem();
+	lugve = new LugveSystem();
 
 	context = new SimpleOpenNI( this );
 
@@ -53,6 +54,7 @@ void setup() {
 	}
 
 	context.setMirror( true );
+
 	context.enableGesture();
 	context.enableHands();
 	context.addGesture( "RaiseHand" );
@@ -105,7 +107,7 @@ void draw() {
 		popStyle();
 
 		// draw the tracked hand
-		if( handsTrackFlag ) {
+		if( trackFlag ) {
 			pushStyle();
 				strokeWeight( 2 );
 				stroke( 251, 201, 85, 80 );
@@ -175,7 +177,7 @@ void onCreateHands( int handId, PVector pos, float time ) {
 
 	println( "onCreateHands - handId: " + handId + ", pos: " + pos + ", time:" + time );
 
-	handsTrackFlag = true;
+	trackFlag = true;
 	handVec = pos;
 
 	handVecList.clear();
@@ -184,7 +186,7 @@ void onCreateHands( int handId, PVector pos, float time ) {
 
 void onUpdateHands( int handId, PVector pos, float time ) {
 
-	// println("onUpdateHandsCb - handId: " + handId + ", pos: " + pos + ", time:" + time);
+	// println( "onUpdateHandsCb - handId: " + handId + ", pos: " + pos + ", time:" + time );
 
 	handVec = pos;
 
@@ -201,16 +203,14 @@ void onUpdateHands( int handId, PVector pos, float time ) {
 	float diffY = abs( pos.y - last.y );
 	float diffTime = abs( time - lastMoveTime );
 
-	if( diffX < 1.0 && diffY < 1.0 && handsTrackFlag ) {
+	if( diffX < 1.0 && diffY < 1.0 && trackFlag ) {
 
 		if( diffTime > 1.0 && moveFlag ) {
 
-			// float posX = pos.x + width/2;
-			// float posY =  height -  (pos.y + height/2 );
-			float posX = pos.x;
-			float posY =  pos.y;
+			float posX = pos.x + width/2;
+			float posY =  height -  (pos.y + height/2 );
 
-			println( "Move : " + posX + " / " + posY );
+			println( "move : [ " + posX + " , " + posY + " ]" );
 
 			lastMoveTime = time;
 			lugve.setPos( posX , posY );
@@ -226,7 +226,7 @@ void onDestroyHands( int handId,float time ) {
 
 	println( "onDestroyHandsCb - handId: " + handId + ", time:" + time );
 
-	handsTrackFlag = false;
+	trackFlag = false;
 	context.addGesture( lastGesture );
 }
 
@@ -238,7 +238,7 @@ void onDestroyHands( int handId,float time ) {
  ======================== */
 void onRecognizeGesture( String strGesture, PVector idPosition, PVector endPosition ) {
 
-	println("onRecognizeGesture - strGesture: " + strGesture + ", idPosition: " + idPosition + ", endPosition:" + endPosition);
+	println( "onRecognizeGesture - strGesture: " + strGesture + ", idPosition: " + idPosition + ", endPosition:" + endPosition );
 
 	lastGesture = strGesture;
 	context.removeGesture( strGesture );
