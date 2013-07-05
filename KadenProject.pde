@@ -24,13 +24,7 @@ HandController hand;
 LugveSystem lugve;
 
 
-/* ========================
-
-	Setup
-
- ======================== */
 void setup() {
-
 	size( 1024, 768, OPENGL );
 
 	lugve = new LugveSystem();
@@ -55,20 +49,12 @@ void setup() {
 	hint( DISABLE_DEPTH_MASK );
 }
 
-/* ========================
-
-	Draw
-
- ======================== */
 void draw() {
-
 	background( 15 );
 
 	lugve.update();
 	lugve.display();
-
 	context.update();
-
 	hand.display();
 }
 
