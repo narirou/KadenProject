@@ -53,6 +53,10 @@ class LugveSystem {
 		targetY = height / 2;
 	}
 
+	float easing( int count, int duration ) {
+		return sin( HALF_PI / duration * ( duration - count ) );
+	}
+
 	public void update() {
 		if( count > 0 ) {
 			float ease = easing( count, DURATION_MOVE );
@@ -120,7 +124,7 @@ class LugveSystem {
 		}
 	}
 
-	public void setSizeDown() {
+	public void sizeDown() {
 		if( num > 0 ) {
 			num--;
 			partTargetSize = partSizes[ num ];
@@ -129,7 +133,7 @@ class LugveSystem {
 		}
 	}
 
-	public void setSizeUp() {
+	public void sizeUp() {
 		if( num < partSizes.length - 1 ) {
 			num++;
 			partTargetSize = partSizes[ num ];
@@ -158,9 +162,5 @@ class LugveSystem {
 			targetY = inputY;
 		}
 		count = DURATION_MOVE;
-	}
-
-	float easing( int count, int duration ) {
-		return sin( HALF_PI / duration * ( duration - count ) );
 	}
 };

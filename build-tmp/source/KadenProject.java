@@ -34,20 +34,10 @@ public class KadenProject extends PApplet {
 
 
 
-// Hand Controll
 SimpleOpenNI context;
-float lastMoveTime;
 
-boolean moveFlag = true;
-boolean trackFlag = false;
-
-PVector handVec = new PVector();
-ArrayList handVecList = new ArrayList();
-int handVecListSize = 10;
-
-String lastGesture = "";
-
-int DOT_STEPS = 8;
+// Hand Controller
+HandController hand;
 
 // Lugve System
 LugveSystem lugve;
@@ -64,6 +54,8 @@ public void setup() {
 
 	lugve = new LugveSystem();
 
+	hand = new HandController();
+
 	context = new SimpleOpenNI( this );
 
 	if( context.enableDepth() == false ) {
@@ -73,12 +65,11 @@ public void setup() {
 	}
 
 	context.setMirror( true );
+
 	context.enableGesture();
 	context.enableHands();
 	context.addGesture( "RaiseHand" );
 	context.setSmoothingHands( 1.0f );
-
-	 context.alternativeViewPointDepthToImage();
 
 	hint( DISABLE_DEPTH_MASK );
 }
@@ -97,60 +88,12 @@ public void draw() {
 
 	context.update();
 
-	pushMatrix();
-		translate( width/2, height/2, 0 );
-		rotateX( radians( 180 ) );
-
-		int[] depthMap = context.depthMap();
-		int index;
-		PVector realWorldPoint;
-
-		// set the rotation center of the scene 1000 infront of the camera
-		translate( 0, 0, -1000 );
-
-		// draw the 3d point depth map
-		pushStyle();
-			strokeWeight( 2 );
-			stroke( 100 );
-
-			for( int y = 0; y < context.depthHeight(); y += DOT_STEPS ) {
-				for( int x = 0; x < context.depthWidth(); x += DOT_STEPS ) {
-
-					index = x + y * context.depthWidth();
-
-					if( depthMap[ index ] > 0 ) {
-						realWorldPoint = context.depthMapRealWorld()[ index ];
-						point( realWorldPoint.x, realWorldPoint.y, realWorldPoint.z );
-					}
-				}
-			}
-		popStyle();
-
-		// draw the tracked hand
-		if( trackFlag ) {
-			pushStyle();
-				strokeWeight( 2 );
-				stroke( 251, 201, 85, 80 );
-				noFill();
-				Iterator itr = handVecList.iterator();
-				beginShape();
-					while( itr.hasNext() ) {
-						PVector p = (PVector) itr.next();
-						vertex( p.x, p.y, p.z );
-					}
-				endShape();
-
-				strokeWeight( 4 );
-				stroke( 251,201,85 );
-				point( handVec.x, handVec.y, handVec.z );
-			popStyle();
-		}
-	popMatrix();
+	hand.display();
 }
 
 /* ========================
 
-	Mouse Events
+	Mouse
 
  ======================== */
 public void mousePressed() {
@@ -164,7 +107,7 @@ public void mousePressed() {
 
 /* ========================
 
-	Key Events
+	Key
 
  ======================== */
 public void keyPressed() {
@@ -190,55 +133,27 @@ public void keyPressed() {
 
 /* ========================
 
-	Hand Events
+	Hands
 
  ======================== */
 public void onCreateHands( int handId, PVector pos, float time ) {
 
 	println( "onCreateHands - handId: " + handId + ", pos: " + pos + ", time:" + time );
 
-	trackFlag = true;
-	handVec = pos;
-
-	handVecList.clear();
-	handVecList.add( pos );
+	hand.createHands( pos );
 }
 
 public void onUpdateHands( int handId, PVector pos, float time ) {
 
 	// println( "onUpdateHandsCb - handId: " + handId + ", pos: " + pos + ", time:" + time );
 
-	handVec = pos;
-
-	handVecList.add( 0, pos );
-
-	// remove the last point
-	if( handVecList.size() >= handVecListSize ) {
-		handVecList.remove( handVecList.size() - 1 );
-	}
+	hand.updateHands( pos );
 
 	// Move Light
-	PVector last = (PVector) handVecList.get( handVecList.size() - 2 );
-	float diffX = abs( pos.x - last.x );
-	float diffY = abs( pos.y - last.y );
-	float diffTime = abs( time - lastMoveTime );
-
-	if( diffX < 1.0f && diffY < 1.0f && trackFlag ) {
-
-		if( diffTime > 1.0f && moveFlag ) {
-
-			float posX = pos.x + width/2;
-			float posY =  height -  (pos.y + height/2 );
-
-			println( "move : [ " + posX + " , " + posY + " ]" );
-
-			lastMoveTime = time;
-			lugve.setPos( posX , posY );
-		}
-		moveFlag = false;
-	}
-	else {
-		moveFlag = true;
+	if( hand.isStop( time ) && hand.isTrack() ) {
+		float x = pos.x + width/2;
+		float y =  height - ( pos.y + height/2 );
+		lugve.setPos( x , y );
 	}
 }
 
@@ -246,29 +161,166 @@ public void onDestroyHands( int handId,float time ) {
 
 	println( "onDestroyHandsCb - handId: " + handId + ", time:" + time );
 
-	trackFlag = false;
-	context.addGesture( lastGesture );
+	hand.destroyHands();
 }
 
 
 /* ========================
 
-	Gesture Events
+	Gesture
 
  ======================== */
 public void onRecognizeGesture( String strGesture, PVector idPosition, PVector endPosition ) {
 
 	println( "onRecognizeGesture - strGesture: " + strGesture + ", idPosition: " + idPosition + ", endPosition:" + endPosition );
 
-	lastGesture = strGesture;
-	context.removeGesture( strGesture );
-	context.startTrackingHands( endPosition );
+	hand.recognizeGesture( strGesture, idPosition, endPosition );
 }
 
 public void onProgressGesture( String strGesture, PVector position,float progress ) {
 
-	//println("onProgressGesture - strGesture: " + strGesture + ", position: " + position + ", progress:" + progress);
+	println("onProgressGesture - strGesture: " + strGesture + ", position: " + position + ", progress:" + progress);
 }
+
+
+/* ========================
+
+	Hand Controller
+
+ ======================== */
+class HandController {
+
+	boolean trackFlag;
+	boolean moveFlag;
+
+	float lastStopTime;
+
+	PVector handVec = new PVector();
+	ArrayList handVecList = new ArrayList();
+
+	String lastGesture = "";
+
+	int LIST_SIZE = 10;
+	int DOT_STEPS = 8;
+
+	HandController() {
+		trackFlag = false;
+		moveFlag = true;
+	}
+
+	public void display() {
+		pushMatrix();
+			translate( width/2, height/2, 0 );
+			rotateX( radians( 180 ) );
+
+			int[] depthMap = context.depthMap();
+			int index;
+			PVector realWorldPoint;
+
+			// set the rotation center of the scene 1000 infront of the camera
+			translate( 0, 0, -1000 );
+
+			// draw the 3d point depth map
+			pushStyle();
+				strokeWeight( 2 );
+				stroke( 100 );
+
+				for( int y = 0; y < context.depthHeight(); y += DOT_STEPS ) {
+					for( int x = 0; x < context.depthWidth(); x += DOT_STEPS ) {
+
+						index = x + y * context.depthWidth();
+
+						if( depthMap[ index ] > 0 ) {
+							realWorldPoint = context.depthMapRealWorld()[ index ];
+							point( realWorldPoint.x, realWorldPoint.y, realWorldPoint.z );
+						}
+					}
+				}
+			popStyle();
+
+			// draw the tracked hand
+			if( trackFlag ) {
+				pushStyle();
+					strokeWeight( 2 );
+					stroke( 251, 201, 85, 80 );
+					noFill();
+					Iterator itr = handVecList.iterator();
+					beginShape();
+						while( itr.hasNext() ) {
+							PVector p = (PVector) itr.next();
+							vertex( p.x, p.y, p.z );
+						}
+					endShape();
+
+					strokeWeight( 4 );
+					stroke( 251,201,85 );
+					point( handVec.x, handVec.y, handVec.z );
+				popStyle();
+			}
+		popMatrix();
+	}
+
+	public void createHands( PVector pos ) {
+		trackFlag = true;
+		handVec = pos;
+
+		handVecList.clear();
+		handVecList.add( pos );
+	}
+
+	public void updateHands( PVector pos ) {
+		handVec = pos;
+
+		handVecList.add( 0, pos );
+
+		if( handVecList.size() >= LIST_SIZE ) {
+			handVecList.remove( handVecList.size() - 1 );
+		}
+	}
+
+	public boolean isStop( float time ) {
+		PVector curr = (PVector) handVecList.get( 1 );
+		PVector last = (PVector) handVecList.get( handVecList.size() - 2 );
+		float diffX = abs( curr.x - last.x );
+		float diffY = abs( curr.y - last.y );
+		float diffTime = abs( time - lastStopTime );
+
+		if( diffX < 1.0f && diffY < 1.0f && trackFlag ) {
+
+			if( diffTime > 1.0f && moveFlag ) {
+
+				lastStopTime = time;
+				moveFlag = false;
+
+				return true;
+			}
+			moveFlag = false;
+		}
+		else {
+			moveFlag = true;
+		}
+		return false;
+	}
+
+	public void destroyHands() {
+		trackFlag = false;
+		context.addGesture( lastGesture );
+	}
+
+	public void recognizeGesture( String strGesture, PVector idPosition, PVector endPosition ) {
+		lastGesture = strGesture;
+		context.removeGesture( strGesture );
+		context.startTrackingHands( endPosition );
+	}
+
+	public boolean isTrack() {
+		return trackFlag;
+	}
+
+	public ArrayList getHandVecList() {
+		return handVecList;
+	}
+};
 /* ========================
 
 	Led System

@@ -15,20 +15,10 @@
 import java.util.*;
 import SimpleOpenNI.*;
 
-// Hand Controll
 SimpleOpenNI context;
-float lastMoveTime;
 
-boolean moveFlag = true;
-boolean trackFlag = false;
-
-PVector handVec = new PVector();
-ArrayList handVecList = new ArrayList();
-int handVecListSize = 10;
-
-String lastGesture = "";
-
-int DOT_STEPS = 8;
+// Hand Controller
+HandController hand;
 
 // Lugve System
 LugveSystem lugve;
@@ -44,6 +34,8 @@ void setup() {
 	size( 1024, 768, OPENGL );
 
 	lugve = new LugveSystem();
+
+	hand = new HandController(); // using context
 
 	context = new SimpleOpenNI( this );
 
@@ -77,60 +69,12 @@ void draw() {
 
 	context.update();
 
-	pushMatrix();
-		translate( width/2, height/2, 0 );
-		rotateX( radians( 180 ) );
-
-		int[] depthMap = context.depthMap();
-		int index;
-		PVector realWorldPoint;
-
-		// set the rotation center of the scene 1000 infront of the camera
-		translate( 0, 0, -1000 );
-
-		// draw the 3d point depth map
-		pushStyle();
-			strokeWeight( 2 );
-			stroke( 100 );
-
-			for( int y = 0; y < context.depthHeight(); y += DOT_STEPS ) {
-				for( int x = 0; x < context.depthWidth(); x += DOT_STEPS ) {
-
-					index = x + y * context.depthWidth();
-
-					if( depthMap[ index ] > 0 ) {
-						realWorldPoint = context.depthMapRealWorld()[ index ];
-						point( realWorldPoint.x, realWorldPoint.y, realWorldPoint.z );
-					}
-				}
-			}
-		popStyle();
-
-		// draw the tracked hand
-		if( trackFlag ) {
-			pushStyle();
-				strokeWeight( 2 );
-				stroke( 251, 201, 85, 80 );
-				noFill();
-				Iterator itr = handVecList.iterator();
-				beginShape();
-					while( itr.hasNext() ) {
-						PVector p = (PVector) itr.next();
-						vertex( p.x, p.y, p.z );
-					}
-				endShape();
-
-				strokeWeight( 4 );
-				stroke( 251,201,85 );
-				point( handVec.x, handVec.y, handVec.z );
-			popStyle();
-		}
-	popMatrix();
+	hand.display();
 }
 
 /* ========================
 
-	Mouse Events
+	Mouse Event
 
  ======================== */
 void mousePressed() {
@@ -144,7 +88,7 @@ void mousePressed() {
 
 /* ========================
 
-	Key Events
+	Key Event
 
  ======================== */
 void keyPressed() {
@@ -152,10 +96,10 @@ void keyPressed() {
 	if( key == CODED ) {
 		switch( keyCode ) {
 			case UP:
-				lugve.setSizeUp();
+				lugve.sizeUp();
 			break;
 			case DOWN:
-				lugve.setSizeDown();
+				lugve.sizeDown();
 			break;
 		}
 	}
@@ -170,55 +114,27 @@ void keyPressed() {
 
 /* ========================
 
-	Hand Events
+	Hands Event
 
  ======================== */
 void onCreateHands( int handId, PVector pos, float time ) {
 
 	println( "onCreateHands - handId: " + handId + ", pos: " + pos + ", time:" + time );
 
-	trackFlag = true;
-	handVec = pos;
-
-	handVecList.clear();
-	handVecList.add( pos );
+	hand.createHands( pos );
 }
 
 void onUpdateHands( int handId, PVector pos, float time ) {
 
-	// println( "onUpdateHandsCb - handId: " + handId + ", pos: " + pos + ", time:" + time );
-
-	handVec = pos;
-
-	handVecList.add( 0, pos );
-
-	// remove the last point
-	if( handVecList.size() >= handVecListSize ) {
-		handVecList.remove( handVecList.size() - 1 );
-	}
+	hand.updateHands( pos );
 
 	// Move Light
-	PVector last = (PVector) handVecList.get( handVecList.size() - 2 );
-	float diffX = abs( pos.x - last.x );
-	float diffY = abs( pos.y - last.y );
-	float diffTime = abs( time - lastMoveTime );
+	if( hand.isStop( time ) && hand.isTrack() ) {
 
-	if( diffX < 1.0 && diffY < 1.0 && trackFlag ) {
+		float x = pos.x + width/2;
+		float y =  height - ( pos.y + height/2 );
 
-		if( diffTime > 1.0 && moveFlag ) {
-
-			float posX = pos.x + width/2;
-			float posY =  height -  (pos.y + height/2 );
-
-			println( "move : [ " + posX + " , " + posY + " ]" );
-
-			lastMoveTime = time;
-			lugve.setPos( posX , posY );
-		}
-		moveFlag = false;
-	}
-	else {
-		moveFlag = true;
+		lugve.setPos( x , y );
 	}
 }
 
@@ -226,26 +142,17 @@ void onDestroyHands( int handId,float time ) {
 
 	println( "onDestroyHandsCb - handId: " + handId + ", time:" + time );
 
-	trackFlag = false;
-	context.addGesture( lastGesture );
+	hand.destroyHands();
 }
 
-
-/* ========================
-
-	Gesture Events
-
- ======================== */
 void onRecognizeGesture( String strGesture, PVector idPosition, PVector endPosition ) {
 
 	println( "onRecognizeGesture - strGesture: " + strGesture + ", idPosition: " + idPosition + ", endPosition:" + endPosition );
 
-	lastGesture = strGesture;
-	context.removeGesture( strGesture );
-	context.startTrackingHands( endPosition );
+	hand.recognizeGesture( strGesture, idPosition, endPosition );
 }
 
 void onProgressGesture( String strGesture, PVector position,float progress ) {
 
-	//println("onProgressGesture - strGesture: " + strGesture + ", position: " + position + ", progress:" + progress);
+	println("onProgressGesture - strGesture: " + strGesture + ", position: " + position + ", progress:" + progress );
 }
