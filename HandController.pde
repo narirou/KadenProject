@@ -5,13 +5,13 @@
  ======================== */
 class HandController {
 
+	PVector handVec = new PVector();
+	ArrayList handVecList = new ArrayList();
+
 	boolean trackFlag;
 	boolean moveFlag;
 
 	float lastStopTime;
-
-	PVector handVec = new PVector();
-	ArrayList handVecList = new ArrayList();
 
 	String lastGesture = "";
 

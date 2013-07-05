@@ -5,7 +5,7 @@ This is a SimpleOpenNI + Processing example of moving light by using hand.
 
 ###Manual
 
-* Space Key : Change the mode ( LED / PERTICLE )
+* Space Key : Change the light mode ( LED / PERTICLE )
 
 * 1 - 5 Key : Change a size of the light source
 
