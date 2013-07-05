@@ -1,4 +1,7 @@
 build-tmp/*
 *.java
 *.class
+*.jar
+*.war
+*.ear
 .DS_store
