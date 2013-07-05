@@ -19,7 +19,7 @@ public class KadenProject extends PApplet {
 
 /* ================================================
 
-	LUGVE Processing Sample
+	LUGVE Processing Example
 
 	2013-07-06 | KADEN PROJECT :: SWITCH
 
@@ -54,7 +54,7 @@ public void setup() {
 
 	lugve = new LugveSystem();
 
-	hand = new HandController();
+	hand = new HandController(); // using context
 
 	context = new SimpleOpenNI( this );
 
@@ -93,7 +93,7 @@ public void draw() {
 
 /* ========================
 
-	Mouse
+	Mouse Event
 
  ======================== */
 public void mousePressed() {
@@ -107,7 +107,7 @@ public void mousePressed() {
 
 /* ========================
 
-	Key
+	Key Event
 
  ======================== */
 public void keyPressed() {
@@ -115,10 +115,10 @@ public void keyPressed() {
 	if( key == CODED ) {
 		switch( keyCode ) {
 			case UP:
-				lugve.setSizeUp();
+				lugve.sizeUp();
 			break;
 			case DOWN:
-				lugve.setSizeDown();
+				lugve.sizeDown();
 			break;
 		}
 	}
@@ -133,7 +133,7 @@ public void keyPressed() {
 
 /* ========================
 
-	Hands
+	Hands Event
 
  ======================== */
 public void onCreateHands( int handId, PVector pos, float time ) {
@@ -145,14 +145,14 @@ public void onCreateHands( int handId, PVector pos, float time ) {
 
 public void onUpdateHands( int handId, PVector pos, float time ) {
 
-	// println( "onUpdateHandsCb - handId: " + handId + ", pos: " + pos + ", time:" + time );
-
 	hand.updateHands( pos );
 
 	// Move Light
 	if( hand.isStop( time ) && hand.isTrack() ) {
+
 		float x = pos.x + width/2;
 		float y =  height - ( pos.y + height/2 );
+
 		lugve.setPos( x , y );
 	}
 }
@@ -164,12 +164,6 @@ public void onDestroyHands( int handId,float time ) {
 	hand.destroyHands();
 }
 
-
-/* ========================
-
-	Gesture
-
- ======================== */
 public void onRecognizeGesture( String strGesture, PVector idPosition, PVector endPosition ) {
 
 	println( "onRecognizeGesture - strGesture: " + strGesture + ", idPosition: " + idPosition + ", endPosition:" + endPosition );
@@ -179,10 +173,8 @@ public void onRecognizeGesture( String strGesture, PVector idPosition, PVector e
 
 public void onProgressGesture( String strGesture, PVector position,float progress ) {
 
-	println("onProgressGesture - strGesture: " + strGesture + ", position: " + position + ", progress:" + progress);
+	println("onProgressGesture - strGesture: " + strGesture + ", position: " + position + ", progress:" + progress );
 }
-
-
 /* ========================
 
 	Hand Controller
@@ -201,7 +193,7 @@ class HandController {
 	String lastGesture = "";
 
 	int LIST_SIZE = 10;
-	int DOT_STEPS = 8;
+	int DOT_STEP = 8;
 
 	HandController() {
 		trackFlag = false;
@@ -225,8 +217,8 @@ class HandController {
 				strokeWeight( 2 );
 				stroke( 100 );
 
-				for( int y = 0; y < context.depthHeight(); y += DOT_STEPS ) {
-					for( int x = 0; x < context.depthWidth(); x += DOT_STEPS ) {
+				for( int y = 0; y < context.depthHeight(); y += DOT_STEP ) {
+					for( int x = 0; x < context.depthWidth(); x += DOT_STEP ) {
 
 						index = x + y * context.depthWidth();
 
@@ -278,14 +270,28 @@ class HandController {
 		}
 	}
 
+	public void destroyHands() {
+		trackFlag = false;
+		context.addGesture( lastGesture );
+	}
+
+	public void recognizeGesture( String strGesture, PVector idPosition, PVector endPosition ) {
+		lastGesture = strGesture;
+		context.removeGesture( strGesture );
+		context.startTrackingHands( endPosition );
+	}
+
 	public boolean isStop( float time ) {
+
+		if( ! trackFlag ) return false;
+
 		PVector curr = (PVector) handVecList.get( 1 );
 		PVector last = (PVector) handVecList.get( handVecList.size() - 2 );
 		float diffX = abs( curr.x - last.x );
 		float diffY = abs( curr.y - last.y );
 		float diffTime = abs( time - lastStopTime );
 
-		if( diffX < 1.0f && diffY < 1.0f && trackFlag ) {
+		if( diffX < 1.0f && diffY < 1.0f ) {
 
 			if( diffTime > 1.0f && moveFlag ) {
 
@@ -300,17 +306,6 @@ class HandController {
 			moveFlag = true;
 		}
 		return false;
-	}
-
-	public void destroyHands() {
-		trackFlag = false;
-		context.addGesture( lastGesture );
-	}
-
-	public void recognizeGesture( String strGesture, PVector idPosition, PVector endPosition ) {
-		lastGesture = strGesture;
-		context.removeGesture( strGesture );
-		context.startTrackingHands( endPosition );
 	}
 
 	public boolean isTrack() {
@@ -328,20 +323,24 @@ class HandController {
  ======================== */
 class LedSystem {
 
-	float ledX;
-	float ledY;
+	float x;
+	float y;
+	int numX;
+	int numY;
 	float ledSize;
 	float ledBaseSize;
-	int intensity;
 
-	LedSystem() {
+	float DOT_STEP = 32;
+
+	LedSystem( int inputNumX, int inputNumY ) {
 		ledBaseSize = 100;
-		intensity = 2;
+		numX = inputNumX;
+		numY = inputNumY;
 	}
 
-	public void setEmitter( float x, float y ) {
-		ledX = x;
-		ledY = y;
+	public void setEmitter( float inputX, float inputY ) {
+		x = inputX;
+		y = inputY;
 	}
 
 	public void setSize( float size ) {
@@ -353,20 +352,23 @@ class LedSystem {
 		pushStyle();
 			fill( 255 ,255, 250, 80 );
 
-			for( int i = 1; i < 24; i++ ) {
-				for( int t=1; t < 32; t++ ) {
+			for( int i = 1; i < numX; i++ ) {
+				for( int j = 1; j < numY; j++ ) {
 
-					intensity = PApplet.parseInt( ledSize - ( dist( 32*t, 32*i, ledX, ledY ) / 5 ) );
+					float ledX = DOT_STEP * i;
+					float ledY = DOT_STEP * j;
+					float distance = dist( ledX, ledY, x, y ) / 5;
+					float intensity = PApplet.parseInt( ledSize - distance );
 					if( intensity < 2 ) intensity = 2;
+
 					strokeWeight( intensity );
 					stroke( 251, 201, 85, intensity );
-					ellipse( 32 * t, 32 * i, intensity, intensity );
+					ellipse( ledX, ledY, intensity, intensity );
 				}
 			}
 		popStyle();
 	}
 };
-
 /* ========================
 
 	Lugve System
@@ -411,7 +413,7 @@ class LugveSystem {
 		system = LED_SYSTEM;
 
 		ps = new ParticleSystem( 70 );
-		ls = new LedSystem();
+		ls = new LedSystem( 32, 24 );
 
 		partSize = partSizes[ num ];
 		ledSize = ledSizes[ num ];
@@ -420,6 +422,10 @@ class LugveSystem {
 		y = height / 2;
 		targetX = width / 2;
 		targetY = height / 2;
+	}
+
+	public float easing( int count, int duration ) {
+		return sin( HALF_PI / duration * ( duration - count ) );
 	}
 
 	public void update() {
@@ -437,6 +443,7 @@ class LugveSystem {
 			countSize--;
 		}
 
+		// ls.update();
 		ps.update();
 
 		if( system == LED_SYSTEM ) {
@@ -489,7 +496,7 @@ class LugveSystem {
 		}
 	}
 
-	public void setSizeDown() {
+	public void sizeDown() {
 		if( num > 0 ) {
 			num--;
 			partTargetSize = partSizes[ num ];
@@ -498,7 +505,7 @@ class LugveSystem {
 		}
 	}
 
-	public void setSizeUp() {
+	public void sizeUp() {
 		if( num < partSizes.length - 1 ) {
 			num++;
 			partTargetSize = partSizes[ num ];
@@ -527,10 +534,6 @@ class LugveSystem {
 			targetY = inputY;
 		}
 		count = DURATION_MOVE;
-	}
-
-	public float easing( int count, int duration ) {
-		return sin( HALF_PI / duration * ( duration - count ) );
 	}
 };
 /* ========================

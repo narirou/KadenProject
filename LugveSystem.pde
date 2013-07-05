@@ -42,7 +42,7 @@ class LugveSystem {
 		system = LED_SYSTEM;
 
 		ps = new ParticleSystem( 70 );
-		ls = new LedSystem();
+		ls = new LedSystem( 32, 24 );
 
 		partSize = partSizes[ num ];
 		ledSize = ledSizes[ num ];
@@ -72,6 +72,7 @@ class LugveSystem {
 			countSize--;
 		}
 
+		// ls.update();
 		ps.update();
 
 		if( system == LED_SYSTEM ) {

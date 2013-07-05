@@ -105,13 +105,16 @@ class HandController {
 	}
 
 	public boolean isStop( float time ) {
+
+		if( ! trackFlag ) return false;
+
 		PVector curr = (PVector) handVecList.get( 1 );
 		PVector last = (PVector) handVecList.get( handVecList.size() - 2 );
 		float diffX = abs( curr.x - last.x );
 		float diffY = abs( curr.y - last.y );
 		float diffTime = abs( time - lastStopTime );
 
-		if( diffX < 1.0 && diffY < 1.0 && trackFlag ) {
+		if( diffX < 1.0 && diffY < 1.0 ) {
 
 			if( diffTime > 1.0 && moveFlag ) {
 

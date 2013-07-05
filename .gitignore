@@ -1,2 +1,4 @@
-build-tmp
+build-tmp/*
+*.java
+*.class
 .DS_store

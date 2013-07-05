@@ -71,7 +71,7 @@ class Particle {
 		return lifespan < 0 ? true : false;
 	}
 
-	public void update() {
+	void update() {
 		lifespan--;
 		velocity.add( gravity );
 		part.setTint( color( 251, 201, 85, lifespan * 2 + 10 ) );

@@ -1,6 +1,6 @@
 /* ================================================
 
-	LUGVE Processing Sample
+	LUGVE Processing Example
 
 	2013-07-06 | KADEN PROJECT :: SWITCH
 
