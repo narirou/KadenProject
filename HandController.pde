@@ -106,9 +106,9 @@ class HandController {
 
 	public boolean isStop( float time ) {
 
-		if( ! trackFlag ) return false;
+		if( ! trackFlag && handVecList.size() > 2 ) return false;
 
-		PVector curr = handVec;
+		PVector curr = (PVector) handVecList.get( 0 );
 		PVector last = (PVector) handVecList.get( handVecList.size() - 2 );
 		float diffX = abs( curr.x - last.x );
 		float diffY = abs( curr.y - last.y );

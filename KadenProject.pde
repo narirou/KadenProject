@@ -41,10 +41,10 @@ void setup() {
 
 	context.setMirror( true );
 
-	context.enableGesture();
 	context.enableHands();
+	context.enableGesture();
 	context.addGesture( "RaiseHand" );
-	context.setSmoothingHands( 1.0 );
+	context.setSmoothingHands( 2.0 );
 
 	hint( DISABLE_DEPTH_MASK );
 }
@@ -79,6 +79,7 @@ void mousePressed() {
  ======================== */
 void keyPressed() {
 
+	// Set Size
 	if( key == CODED ) {
 		switch( keyCode ) {
 			case UP:
@@ -92,6 +93,13 @@ void keyPressed() {
 	else if( '0' < key && key < '9' ) {
 		lugve.setSize( int( key - '0' ) );
 	}
+
+	// ON / OFF
+	else if( key == ENTER || key == RETURN ) {
+		lugve.toggleLight();
+	}
+
+	// Change Mode
 	else if( key == ' ' ) {
 		lugve.toggleSystem();
 	}
@@ -118,8 +126,6 @@ void onUpdateHands( int handId, PVector pos, float time ) {
 
 		float x = pos.x + width/2;
 		float y =  height - ( pos.y + height/2 );
-
-		println( "move : [" + x + ", " + y + " ]" );
 
 		lugve.setPos( x , y );
 	}

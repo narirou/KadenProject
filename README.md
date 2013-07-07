@@ -1,11 +1,13 @@
 ##LUGVE - KADEN PROJECT :: SWITCH
 
-This is a SimpleOpenNI + Processing example of moving light by using hand.
+This is a example using Kinect + SimpleOpenNI + Processing to move the light by hand.
 
 
 ###Manual
 
 * Space Key : Change the light mode ( LED / PERTICLE )
+
+* Enter Key : Toggle ( ON / OFF )
 
 * 1 - 5 Key : Change a size of the light source
 
