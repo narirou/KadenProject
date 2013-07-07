@@ -108,7 +108,7 @@ class HandController {
 
 		if( ! trackFlag ) return false;
 
-		PVector curr = (PVector) handVecList.get( 1 );
+		PVector curr = handVec;
 		PVector last = (PVector) handVecList.get( handVecList.size() - 2 );
 		float diffX = abs( curr.x - last.x );
 		float diffY = abs( curr.y - last.y );

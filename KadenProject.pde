@@ -34,9 +34,9 @@ void setup() {
 	context = new SimpleOpenNI( this );
 
 	if( context.enableDepth() == false ) {
-		 println( "Can't open the depthMap, maybe the camera is not connected!" );
-		 exit();
-		 return;
+		println( "Can't open the depthMap, maybe the camera is not connected!" );
+		exit();
+		return;
 	}
 
 	context.setMirror( true );
@@ -97,7 +97,6 @@ void keyPressed() {
 	}
 }
 
-
 /* ========================
 
 	Hands Event
@@ -119,6 +118,8 @@ void onUpdateHands( int handId, PVector pos, float time ) {
 
 		float x = pos.x + width/2;
 		float y =  height - ( pos.y + height/2 );
+
+		println( "move : [" + x + ", " + y + " ]" );
 
 		lugve.setPos( x , y );
 	}
