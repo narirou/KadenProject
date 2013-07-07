@@ -2,7 +2,7 @@
 
 	LUGVE Processing Example
 
-	2013-07-06 | KADEN PROJECT :: SWITCH
+	2013 | KADEN PROJECT :: SWITCH
 
 	Credits:
 		- Particles

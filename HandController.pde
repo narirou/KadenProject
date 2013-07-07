@@ -18,6 +18,9 @@ class HandController {
 	int LIST_SIZE = 10;
 	int DOT_STEP = 8;
 
+	float MARGIN_PIXEL = 5.0;
+	float MARGIN_TIME = 1.0;
+
 	HandController() {
 		trackFlag = false;
 		moveFlag = true;
@@ -106,7 +109,7 @@ class HandController {
 
 	public boolean isStop( float time ) {
 
-		if( ! trackFlag && handVecList.size() > 2 ) return false;
+		if( ! trackFlag || handVecList.size() <= 2 ) return false;
 
 		PVector curr = (PVector) handVecList.get( 0 );
 		PVector last = (PVector) handVecList.get( handVecList.size() - 2 );
@@ -114,9 +117,9 @@ class HandController {
 		float diffY = abs( curr.y - last.y );
 		float diffTime = abs( time - lastStopTime );
 
-		if( diffX < 1.0 && diffY < 1.0 ) {
+		if( diffX < MARGIN_PIXEL && diffY < MARGIN_PIXEL ) {
 
-			if( diffTime > 1.0 && moveFlag ) {
+			if( diffTime > MARGIN_TIME && moveFlag ) {
 
 				lastStopTime = time;
 				moveFlag = false;
