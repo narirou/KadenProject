@@ -1,6 +1,6 @@
 ##LUGVE - KADEN PROJECT :: SWITCH
 
-This is a example using Kinect + SimpleOpenNI + Processing to move the light by hand.
+This is an example using Kinect + SimpleOpenNI + Processing to move the light by hand.
 
 
 ###Manual

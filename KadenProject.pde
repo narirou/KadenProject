@@ -1,4 +1,4 @@
-/* ================================================
+/* ============================================
 
 	LUGVE Processing Example
 
@@ -10,7 +10,7 @@
 		- SimpleOpenNI Hands3d Test
 		  by Max Rheiner, Interaction Design, zhdk
 
- ================================================ */
+ ============================================= */
 
 import java.util.*;
 import SimpleOpenNI.*;

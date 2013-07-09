@@ -44,7 +44,7 @@ class LugveSystem {
 	LugveSystem() {
 		switchFlag = true;
 
-		system = LED_SYSTEM;
+		system = PARTICLE_SYSTEM;
 
 		ls = new LedSystem( 32, 24 );
 		ps = new ParticleSystem( 70 );
@@ -53,8 +53,6 @@ class LugveSystem {
 		y = height / 2;
 		targetX = width / 2;
 		targetY = height / 2;
-		ls.setEmitter( x, y );
-		ps.setEmitter( x, y );
 
 		ledSize = ledSizes[ num ];
 		partSize = partSizes[ num ];
@@ -76,13 +74,6 @@ class LugveSystem {
 			x += ease * ( targetX - x );
 			y += ease * ( targetY - y );
 			count--;
-
-			if( system == LED_SYSTEM ) {
-				ls.setEmitter( x, y );
-			}
-			else if( system == PARTICLE_SYSTEM ) {
-				ps.setEmitter( x, y );
-			}
 		}
 
 		if( countSize > 0 ) {
@@ -90,13 +81,15 @@ class LugveSystem {
 			ledSize += ease * ( ledTargetSize - ledSize );
 			partSize += ease * ( partTargetSize - partSize );
 			countSize--;
+		}
 
-			if( system == LED_SYSTEM ) {
-				ls.setSize( ledSize );
-			}
-			else if( system == PARTICLE_SYSTEM ) {
-				ps.setSize( partSize );
-			}
+		if( system == LED_SYSTEM ) {
+			ls.setSize( ledSize );
+			ls.setPos( x, y );
+		}
+		else if( system == PARTICLE_SYSTEM ) {
+			ps.setSize( partSize );
+			ps.setPos( x, y );
 		}
 	}
 

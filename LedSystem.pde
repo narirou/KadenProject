@@ -20,7 +20,7 @@ class LedSystem {
 		numY = inputNumY;
 	}
 
-	public void setEmitter( float inputX, float inputY ) {
+	public void setPos( float inputX, float inputY ) {
 		x = inputX;
 		y = inputY;
 	}
@@ -44,7 +44,7 @@ class LedSystem {
 					if( intensity < 2 ) intensity = 2;
 
 					strokeWeight( intensity );
-					stroke( 251, 201, 85, intensity );
+					stroke( 251, 230, 198, intensity );
 					ellipse( ledX, ledY, intensity, intensity );
 				}
 			}

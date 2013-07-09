@@ -60,7 +60,7 @@ class HandController {
 			if( trackFlag ) {
 				pushStyle();
 					strokeWeight( 2 );
-					stroke( 251, 201, 85, 80 );
+					stroke( 255, 255, 255, 80 );
 					noFill();
 					Iterator itr = handVecList.iterator();
 					beginShape();
@@ -70,8 +70,8 @@ class HandController {
 						}
 					endShape();
 
-					strokeWeight( 4 );
-					stroke( 251,201,85 );
+					strokeWeight( 8 );
+					stroke( 255, 255, 255, 180 );
 					point( handVec.x, handVec.y, handVec.z );
 				popStyle();
 			}
