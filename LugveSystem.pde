@@ -13,7 +13,7 @@ class LugveSystem {
 	int PARTICLE_SYSTEM = 1;
 
 	// Switch
-	boolean switchFlag;
+	boolean switchFlag = true;
 
 	// Position
 	float x;
@@ -21,18 +21,18 @@ class LugveSystem {
 	float targetX;
 	float targetY;
 
+	// Size number
+	int num = 2;
+
 	// Particle Size
-	int[] partSizes = { 0, 50, 100, 150, 200, 250 };
-	float partSize;
-	float partTargetSize;
+	int[] partSizes = { 0, 70, 110, 140, 160, 190 };
+	int partSize = partSizes[ num ];
+	int partTargetSize = 0;
 
 	// Led Size
 	int[] ledSizes = { 0, 20, 30, 40, 50, 60 };
-	float ledSize;
-	float ledTargetSize;
-
-	// Size number
-	int num = 2;
+	int ledSize = ledSizes[ num ];
+	int ledTargetSize = 0;
 
 	// counter
 	int count = 0;
@@ -42,8 +42,6 @@ class LugveSystem {
 	int DURATION_RESIZE = 100;
 
 	LugveSystem() {
-		switchFlag = true;
-
 		system = PARTICLE_SYSTEM;
 
 		ls = new LedSystem( 32, 24 );
@@ -51,13 +49,8 @@ class LugveSystem {
 
 		x = width / 2;
 		y = height / 2;
-		targetX = width / 2;
-		targetY = height / 2;
 
-		ledSize = ledSizes[ num ];
-		partSize = partSizes[ num ];
-		ls.setSize( ledSize );
-		ps.setSize( partSize );
+		setLight( "ON" );
 	}
 
 	float easing( int count, int duration ) {
@@ -65,6 +58,7 @@ class LugveSystem {
 	}
 
 	public void update() {
+
 		if( ! switchFlag && countSize == 0 ) return;
 
 		ps.update();
@@ -143,6 +137,26 @@ class LugveSystem {
 		}
 	}
 
+	public void setLight( String message ) {
+		if( message == "OFF" ) {
+			switchFlag = false;
+			partTargetSize = partSizes[ 0 ];
+			ledTargetSize = ledSizes[ 0 ];
+			countSize = DURATION_RESIZE;
+			println( "light : OFF" );
+		}
+		else if( message == "ON" ){
+			switchFlag = true;
+			partTargetSize = partSizes[ num ];
+			ledTargetSize = ledSizes[ num ];
+			countSize = DURATION_RESIZE;
+			println( "light : ON" );
+		}
+		else{
+			println( "light : error" );
+		}
+	}
+
 	public boolean getStatus() {
 		return switchFlag;
 	}
@@ -151,23 +165,25 @@ class LugveSystem {
 	public void setSize( int n ) {
 		if( ! switchFlag ) return;
 
-		if( 0 < n && n < partSizes.length ){
+		if( 0 <= n && n < partSizes.length ){
 			num = n;
 			partTargetSize = partSizes[ num ];
 			ledTargetSize = ledSizes[ num ];
 			countSize = DURATION_RESIZE;
 		}
+		println( "size : " + num );
 	}
 
 	public void sizeDown() {
 		if( ! switchFlag ) return;
 
-		if( num > 0 ) {
+		if( 0 < num ) {
 			num--;
 			partTargetSize = partSizes[ num ];
 			ledTargetSize = ledSizes[ num ];
 			countSize = DURATION_RESIZE;
 		}
+		println( "size : " + num );
 	}
 
 	public void sizeUp() {
@@ -179,6 +195,7 @@ class LugveSystem {
 			ledTargetSize = ledSizes[ num ];
 			countSize = DURATION_RESIZE;
 		}
+		println( "size : " + num );
 	}
 
 	public void setPos( float inputX, float inputY ) {

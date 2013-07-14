@@ -16,7 +16,7 @@ class HandController {
 	String lastGesture = "";
 
 	int LIST_SIZE = 10;
-	int DOT_STEP = 8;
+	int DOT_STEP = 7;
 
 	float MARGIN_PIXEL = 5.0;
 	float MARGIN_TIME = 1.0;
@@ -24,6 +24,10 @@ class HandController {
 	HandController() {
 		trackFlag = false;
 		moveFlag = true;
+	}
+
+	public void update() {
+		context.update();
 	}
 
 	public void display() {
@@ -40,7 +44,7 @@ class HandController {
 
 			// draw the 3d point depth map
 			pushStyle();
-				strokeWeight( 2 );
+				strokeWeight( 3 );
 				stroke( 100 );
 
 				for( int y = 0; y < context.depthHeight(); y += DOT_STEP ) {
@@ -59,7 +63,7 @@ class HandController {
 			// draw the tracked hand
 			if( trackFlag ) {
 				pushStyle();
-					strokeWeight( 2 );
+					strokeWeight( 3 );
 					stroke( 255, 255, 255, 80 );
 					noFill();
 					Iterator itr = handVecList.iterator();
@@ -70,7 +74,7 @@ class HandController {
 						}
 					endShape();
 
-					strokeWeight( 8 );
+					strokeWeight( 10 );
 					stroke( 255, 255, 255, 180 );
 					point( handVec.x, handVec.y, handVec.z );
 				popStyle();

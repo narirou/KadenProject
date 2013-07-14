@@ -27,10 +27,6 @@ LugveSystem lugve;
 void setup() {
 	size( 1024, 768, OPENGL );
 
-	lugve = new LugveSystem();
-
-	hand = new HandController(); // using context
-
 	context = new SimpleOpenNI( this );
 
 	if( context.enableDepth() == false ) {
@@ -46,16 +42,20 @@ void setup() {
 	context.addGesture( "RaiseHand" );
 	context.setSmoothingHands( 2.0 );
 
+	hand = new HandController(); // using context
+
+	lugve = new LugveSystem();
+
 	hint( DISABLE_DEPTH_MASK );
 }
 
 void draw() {
 	background( 15 );
 
+	hand.update();
+	hand.display();
 	lugve.update();
 	lugve.display();
-	context.update();
-	hand.display();
 }
 
 /* ========================
@@ -125,7 +125,7 @@ void onUpdateHands( int handId, PVector pos, float time ) {
 	if( hand.isStop( time ) && hand.isTrack() ) {
 
 		float x = pos.x + width/2;
-		float y =  height - ( pos.y + height/2 );
+		float y =  height/2 - pos.y;
 
 		lugve.setPos( x , y );
 	}

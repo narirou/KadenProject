@@ -6,9 +6,9 @@
 class Particle {
 
 	PShape part;
-	float partSize;
-	float partBaseSize = 100;
-	float partScale = 1;
+	float partBaseSize = 110;
+	float partSize = 110;
+	float partScale = 1.0;
 	float lifespan = 0;
 	PVector velocity;
 	PVector gravity = new PVector( random(-0.1,0.1), random(-0.1,0.1) );
@@ -19,7 +19,6 @@ class Particle {
 		sprite = loadImage( "sprite.png" );
 
 		// particle
-		partSize = partBaseSize;
 		part = createShape();
 		part.beginShape( QUAD );
 		part.noStroke();
@@ -56,13 +55,14 @@ class Particle {
 	void resize( float size ) {
 		if( partSize == size ) return;
 
-		float partScale = size / partSize;
+		float partNewSize = ( size / partBaseSize ) * partSize / 2;
+		int[] xdirs = { -1, +1, +1, -1 };
+		int[] ydirs = { -1, -1, +1, +1 };
 
-		for( int i = 0, len = part.getVertexCount(); i < len ; i++ ) {
-			PVector vec = part.getVertex( i );
-			vec.x *= partScale;
-			vec.y *= partScale;
-			part.setVertex( i, vec );
+		for( int i = 0; i < 4 ; i++ ) {
+			float vecX = xdirs[i] * partNewSize;
+			float vecY = ydirs[i] * partNewSize;
+			part.setVertex( i, vecX, vecY );
 		}
 		partSize = size;
 	}
