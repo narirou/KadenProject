@@ -17,9 +17,8 @@ class HandController {
 
 	int LIST_SIZE = 10;
 	int DOT_STEP = 7;
-
-	float MARGIN_PIXEL = 5.0;
-	float MARGIN_TIME = 1.0;
+	float STOP_PIXEL = 5.0;
+	float STOP_TIME = 1.0;
 
 	HandController() {
 		trackFlag = false;
@@ -121,15 +120,14 @@ class HandController {
 		float diffY = abs( curr.y - last.y );
 		float diffTime = abs( time - lastStopTime );
 
-		if( diffX < MARGIN_PIXEL && diffY < MARGIN_PIXEL ) {
+		if( diffX < STOP_PIXEL && diffY < STOP_PIXEL ) {
 
-			if( diffTime > MARGIN_TIME && moveFlag ) {
-
+			if( diffTime > STOP_TIME && moveFlag ) {
 				lastStopTime = time;
 				moveFlag = false;
-
 				return true;
 			}
+
 			moveFlag = false;
 		}
 		else {

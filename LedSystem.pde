@@ -9,15 +9,20 @@ class LedSystem {
 	float y;
 	int numX;
 	int numY;
+	float gridWidth;
+	float gridHeight;
+
 	float ledSize;
 	float ledBaseSize;
 
-	float DOT_STEP = 32;
-
 	LedSystem( int inputNumX, int inputNumY ) {
 		ledBaseSize = 100;
+
 		numX = inputNumX;
 		numY = inputNumY;
+
+		gridWidth = WINDOW_WIDTH / numX;
+		gridHeight = WINDOW_HEIGHT / numY;
 	}
 
 	public void setPos( float inputX, float inputY ) {
@@ -37,9 +42,10 @@ class LedSystem {
 			for( int i = 1; i < numX; i++ ) {
 				for( int j = 1; j < numY; j++ ) {
 
-					float ledX = DOT_STEP * i;
-					float ledY = DOT_STEP * j;
+					float ledX = gridWidth * i;
+					float ledY = gridHeight * j;
 					float distance = dist( ledX, ledY, x, y ) / 5;
+
 					float intensity = int( ledSize - distance );
 					if( intensity < 2 ) intensity = 2;
 

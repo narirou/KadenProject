@@ -13,19 +13,28 @@
  ============================================= */
 
 import java.util.*;
+import processing.serial.*;
 import SimpleOpenNI.*;
 
+// Hand Controller
 SimpleOpenNI context;
 
-// Hand Controller
 HandController hand;
 
 // Lugve System
 LugveSystem lugve;
 
+// Arduino
+Serial port;
+
+Arduino arduino;
+
+// Window
+int WINDOW_WIDTH = 1024;
+int WINDOW_HEIGHT = 768;
 
 void setup() {
-	size( 1024, 768, OPENGL );
+	size( WINDOW_WIDTH, WINDOW_HEIGHT, OPENGL );
 
 	context = new SimpleOpenNI( this );
 
@@ -43,6 +52,10 @@ void setup() {
 	context.setSmoothingHands( 2.0 );
 
 	hand = new HandController(); // using context
+
+	port = new Serial( this, "COM3", 9600 );
+
+	arduino = new Arduino( 3, 3 ); // using port
 
 	lugve = new LugveSystem();
 
@@ -68,6 +81,7 @@ void mousePressed() {
 	switch( mouseButton ) {
 		case LEFT:
 			lugve.setPos( mouseX, mouseY );
+			arduino.setPos( mouseX, mouseY );
 		break;
 	}
 }
@@ -128,6 +142,8 @@ void onUpdateHands( int handId, PVector pos, float time ) {
 		float y =  height/2 - pos.y;
 
 		lugve.setPos( x , y );
+
+		arduino.setPos( x, y );
 	}
 }
 
