@@ -55,7 +55,7 @@ void setup() {
 
 	port = new Serial( this, "COM3", 9600 );
 
-	arduino = new Arduino( 3, 3 ); // using port
+	arduino = new Arduino( 15, 10 ); // using port
 
 	lugve = new LugveSystem();
 
@@ -141,7 +141,14 @@ void onUpdateHands( int handId, PVector pos, float time ) {
 		float x = pos.x + width/2;
 		float y =  height/2 - pos.y;
 
-		lugve.setPos( x , y );
+		lugve.setPos( x, y );
+	}
+
+	// Move Arduino LED
+	if( hand.isTrack() ) {
+
+		float x = pos.x + width/2;
+		float y =  height/2 - pos.y;
 
 		arduino.setPos( x, y );
 	}
