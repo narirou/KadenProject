@@ -1,7 +1,24 @@
+# Processing
 build-tmp/*
 *.java
 *.class
 *.jar
 *.war
 *.ear
-.DS_store
+
+# Temp
+.sass-cache
+.tmp
+
+# Tools
+*.sublime-*
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
