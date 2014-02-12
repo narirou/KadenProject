@@ -1,22 +1,23 @@
-##LUGVE - KADEN PROJECT :: SWITCH
+LUGVE
+=============================
 
-This is an example using Kinect + SimpleOpenNI + Processing to move the light by hand.
-
-
-###Manual
-
-* Space Key : Change the light mode ( LED / PERTICLE )
-
-* Enter Key : Toggle ( ON / OFF )
-
-* 1 - 5 Key : Change a size of the light source
-
-* up, down Key: Change a size of the light source
-
-* Mouse Left Click : Move the light source
+> This is the example using Kinect + SimpleOpenNI + Processing to move the light by hand.
 
 
-###Credits
+### Manual
+
+* Space Key : Change lighting mode ( LED / PERTICLE )
+
+* Enter Key : Toggle light ( ON / OFF )
+
+* 1 - 5 Key : Change the size of light source
+
+* up, down Key: Change the size of light source
+
+* Mouse Left Click : Move light source
+
+
+### Based On
 
 * Particles
   by Daniel Shiffman.
