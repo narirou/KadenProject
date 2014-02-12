@@ -45,7 +45,6 @@ void setup() {
 	}
 
 	context.setMirror( true );
-
 	context.enableHands();
 	context.enableGesture();
 	context.addGesture( "RaiseHand" );
@@ -94,15 +93,11 @@ void mousePressed() {
 void keyPressed() {
 
 	// Set Size
-	if( key == CODED ) {
-		switch( keyCode ) {
-			case UP:
-				lugve.sizeUp();
-			break;
-			case DOWN:
-				lugve.sizeDown();
-			break;
-		}
+	if( keyCode == UP ) {
+		lugve.sizeUp();
+	}
+	else if( keyCode == DOWN ) {
+		lugve.sizeDown();
 	}
 	else if( '0' < key && key < '9' ) {
 		lugve.setSize( int( key - '0' ) );
